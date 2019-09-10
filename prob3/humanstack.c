@@ -2,7 +2,7 @@
 /*
  *  314ckC47 @ Stealien
  *  humanstack.c - kongju keris pwnable task.
- *  $ gcc -o humanstack humanstack.c -m32 -no-pie
+ *  $ gcc -o humanstack humanstack.c -m32
 */
 
 #include <errno.h>
@@ -15,25 +15,34 @@
 #include <sys/mman.h>
 
 #ifdef DEBUG
+
 #define DPRINT(...) {               \
     fprintf(stderr, "[DEBUG] ");    \
     fprintf(stderr, __VA_ARGS__);   \
     fprintf(stderr, "\n");          \
 }
-#define ERROR(...) {                                        \
+#define PERROR(...) {                                       \
     fprintf(stderr, "[-] %s:%d | ", __func__, __LINE__);    \
     fprintf(stderr, __VA_ARGS__);                           \
     fprintf(stderr, "\n");                                  \
+}
+#define ERROR(...) {                                        \
+    PERROR(__VA_ARGS__);                                    \
     goto err;                                               \
 }
+
 #else
+
 #define DPRINT(...)
-#define ERROR(...) {                                        \
+#define PERROR(...) {                                       \
     fprintf(stderr, "[-] ");                                \
     fprintf(stderr, __VA_ARGS__);                           \
     fprintf(stderr, "\n");                                  \
-    goto err;                                               \
 }
+#define ERROR(...) {                                        \
+    PERROR(__VA_ARGS__);                                    \
+    goto err;                                               \
+}    
 #endif
 
 #define PAGE_SIZE 0x1000
@@ -62,11 +71,27 @@ void myinit(void) {
     bp      = NULL;
 }
 
+void vuln(void) {
+    stack_expand(0x100);
+    write(1, ">>> ", 4);
+    read(0, sp, 0x200);
+    stack_shrink(0x100);
+}
+
 int main(void) {
 
-    // todo
+    if (stack_map())
+        ERROR("stack_map()");
+
+restart:
+    vuln();
+
+    if (stack_unmap())
+        goto restart;
     
     return 0;
+err:
+    return -1;
 }
 
 int stack_map(void) {
@@ -127,8 +152,12 @@ int stack_unmap(void) {
     if (stack_pop((uint32_t*)&verif_sp))
         ERROR("stack pop failed.");
 
-    if (sp != verif_sp)
-        ERROR("stack verification failed.");
+    if (sp != verif_sp) {
+        PERROR("stack verification failed. %p != %p", sp, verif_sp);
+        if (stack_push((uint32_t)verif_sp) || stack_push((uint32_t)fp))
+            ERROR("stack_push failed.");
+        return -1;
+    }
 
     /* unmapping stack */
     fp(stack, PAGE_SIZE);
