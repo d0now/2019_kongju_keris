@@ -20,7 +20,7 @@ cmds = {
     "SHR"   : 7
 }
 
-e = ELF("./babybof")
+e = ELF("./babystack")
 l = e.libc
 p = process(e.path)
 

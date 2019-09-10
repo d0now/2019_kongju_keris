@@ -1,8 +1,8 @@
 
 /*
  *  314ckC47 @ Stealien
- *  babybof.c - kongju keris pwnable task.
- *  $ gcc -o babybof babybof.c -m32 -no-pie
+ *  babystack.c - kongju keris pwnable task.
+ *  $ gcc -o babystack babystack.c -m32 -no-pie
 */
 
 #include <errno.h>
