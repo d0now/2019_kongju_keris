@@ -14,40 +14,40 @@ bool write_ptr(void);
 
 int main(void) {
 
-	void *ptr = NULL;
-	
-	if (read_ptr() || write_ptr())
-		goto err;
+    void *ptr = NULL;
+    
+    if (read_ptr() || write_ptr())
+        goto err;
 
-	return 0;
+    return 0;
 err:
-	return -1;
+    return -1;
 }
 
 bool read_ptr(void) {
 
-	void *ptr = NULL;
+    void *ptr = NULL;
 
-	if (read(0, &ptr, sizeof(uint64_t)) != sizeof(uint64_t))
-		goto err;
+    if (read(0, &ptr, sizeof(uint64_t)) != sizeof(uint64_t))
+        goto err;
 
-	write(1, ptr, sizeof(uint64_t));
+    write(1, ptr, sizeof(uint64_t));
 
-	return false;
+    return false;
 err:
-	return true;
+    return true;
 }
 
 bool write_ptr(void) {
 
-	void *ptr = NULL;
+    void *ptr = NULL;
 
-	if (read(0, &ptr, sizeof(uint64_t)) != sizeof(uint64_t))
-		goto err;
-	usleep(1);
-	read(0, ptr, sizeof(uint64_t));
+    if (read(0, &ptr, sizeof(uint64_t)) != sizeof(uint64_t))
+        goto err;
+    usleep(1);
+    read(0, ptr, sizeof(uint64_t));
 
-	return false;
+    return false;
 err:
-	return true;
+    return true;
 }
