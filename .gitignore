@@ -2,3 +2,4 @@
 *.sublime-workspace
 .fuse_hidden*
 core
+release/
